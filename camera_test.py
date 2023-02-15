@@ -1,6 +1,22 @@
+import time
+
 from ximea import xiapi
 import cv2
+import os
 ### runn this command first echo 0|sudo tee /sys/module/usbcore/parameters/usbfs_memory_mb  ###
+
+def concat_tile(im_list_2d):
+    return cv2.vconcat([cv2.hconcat(im_list_h) for im_list_h in im_list_2d])
+def save_image(path, current_photo_num):
+    cv2.imwrite(path + "photo" + str(current_photo_num) + ".jpg", image)
+    print("photo" + str(current_photo_num) + ".jpg created")
+
+def create_mosaic(images):
+    im_tile = concat_tile([[images[0], images[1]],
+                               [images[2], images[-1]]])
+    cv2.imwrite("mosaic.jpg", im_tile)
+    print("mosaic.jpg created")
+    cv2.imshow("im_tile", im_tile)
 
 #create instance for first connected camera
 cam = xiapi.Camera()
@@ -28,13 +44,26 @@ img = xiapi.Image()
 print('Starting data acquisition...')
 cam.start_acquisition()
 
-
-while cv2.waitKey() != ord('q'):
+key = cv2.waitKey()
+max_num_of_photos = 4
+current_photo_num = 1
+path = 'images/'
+images_list = []
+while key != ord('q'):
     cam.get_image(img)
     image = img.get_image_data_numpy()
     image = cv2.resize(image,(240,240))
     cv2.imshow("test", image)
-    cv2.waitKey()
+    if key == 32 and current_photo_num <= 4:
+        save_image(path, current_photo_num)
+        images_list.append(image)
+        current_photo_num += 1
+        if current_photo_num == 5:
+            create_mosaic(images_list)
+        # time.sleep(1)
+    key = cv2.waitKey()
+
+
 
 # for i in range(10):
 #     #get data and pass them from camera to img
