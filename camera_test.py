@@ -3,6 +3,7 @@ import time
 from ximea import xiapi
 import cv2
 import os
+import numpy as np
 ### runn this command first echo 0|sudo tee /sys/module/usbcore/parameters/usbfs_memory_mb  ###
 
 def concat_tile(im_list_2d):
@@ -61,7 +62,10 @@ while key != ord('q'):
         if current_photo_num == 5:
             create_mosaic(images_list)
         # time.sleep(1)
-    key = cv2.waitKey()
+    if key == ord('1'):
+        kernel = np.ones((3,3), np.float32)/9
+        cv2.filter2D()
+    key = cv2.waitKey('mosaic.jpg',-1,kernel)
 
 
 
