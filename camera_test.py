@@ -19,6 +19,37 @@ def create_mosaic(images):
     print("mosaic.jpg created")
     cv2.imshow("im_tile", im_tile)
 
+def apply_kernel(image):
+    cv2.imshow('Original picture', image)
+    kernel = np.array([[0, -1, 0],
+                   [-1, 5, -1],
+                   [0, -1, 0]], np.float32)
+    kimage = cv2.filter2D(image, -1, kernel)
+    cv2.imshow('Filter applied', kimage)
+    # return cv2.filter2D(image, -1, kernel)
+    
+
+def rotate_picture(image):
+    cv2.imshow('Original picture', image)
+    
+    # Grab the dimensions of the image and calculate the center of the image 
+    (height, width) = image.shape[:2]
+    (x_center, y_center) = (width // 2, height // 2)
+
+    # Rotate the image by 90 degrees around the center of the image
+    m = cv2.getRotationMatrix2D((x_center, y_center), 90, 1.0)
+    rotated = cv2.warpAffine(image, m, (width, height))
+    cv2.imshow('Rotated image', rotated)
+
+def write_to_terminal():
+    print('Write to terminal, yet to be implemented')
+
+def show_only_red(image):
+    image[:,:,0] = 0
+    image[:,:,1] = 0
+    cv2.imshow('Red chanel only', image)
+
+    
 #create instance for first connected camera
 cam = xiapi.Camera()
 
@@ -61,11 +92,16 @@ while key != ord('q'):
         current_photo_num += 1
         if current_photo_num == 5:
             create_mosaic(images_list)
-        # time.sleep(1)
-    if key == ord('1'):
-        kernel = np.ones((3,3), np.float32)/9
-        cv2.filter2D()
-    key = cv2.waitKey('mosaic.jpg',-1,kernel)
+        time.sleep(1)
+    if key == ord('k'):
+        apply_kernel(image)
+    if key == ord('r'):
+        rotate_picture(image)
+    if key == ord('c'):
+        show_only_red(image)
+    if key == ord('t'):
+        write_to_terminal()
+    key = cv2.waitKey()
 
 
 
