@@ -24,11 +24,10 @@ def apply_kernel(image):
     kernel = np.array([[0, -1, 0],
                    [-1, 5, -1],
                    [0, -1, 0]], np.float32)
-    kimage = cv2.filter2D(image, -1, kernel)
-    cv2.imshow('Filter applied', kimage)
-    # return cv2.filter2D(image, -1, kernel)
+    kimage = cv2.filter2D(image[1:240,1:240], -1, kernel)
+    image[1:240,1:240] = kimage
+    cv2.imshow('Filter applied', image)
     
-
 def rotate_picture(image):
     cv2.imshow('Original picture', image)
     
@@ -37,18 +36,23 @@ def rotate_picture(image):
     (x_center, y_center) = (width // 2, height // 2)
 
     # Rotate the image by 90 degrees around the center of the image
-    m = cv2.getRotationMatrix2D((x_center, y_center), 90, 1.0)
-    rotated = cv2.warpAffine(image, m, (width, height))
-    cv2.imshow('Rotated image', rotated)
+    m = cv2.getRotationMatrix2D((360, 120), 90, 1.0)
+    rotated_part =cv2.warpAffine(image, m, (480, 240))
+    image[1:240, 241:480] = rotated_part[1:240, 241:480]
+    cv2.imshow('Rotated image', image)
 
 def write_to_terminal():
     print('Write to terminal, yet to be implemented')
 
 def show_only_red(image):
-    image[:,:,0] = 0
-    image[:,:,1] = 0
+    image[241:480,1:240,0] = 0
+    image[241:480,1:240,1] = 0
     cv2.imshow('Red chanel only', image)
 
+def call_all_functions(image):
+    apply_kernel(image)
+    rotate_picture(image)
+    show_only_red(image)
     
 #create instance for first connected camera
 cam = xiapi.Camera()
@@ -101,6 +105,8 @@ while key != ord('q'):
         show_only_red(image)
     if key == ord('t'):
         write_to_terminal()
+    if key == ord('a'):
+        call_all_functions(image)
     key = cv2.waitKey()
 
 
