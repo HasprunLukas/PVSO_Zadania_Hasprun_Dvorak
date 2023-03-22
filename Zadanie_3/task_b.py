@@ -3,21 +3,29 @@ from scipy import ndimage
 from PIL import Image
 import math
 
-
-def gaussian_kernel(size, sigma):
-    """Returns a 2D Gaussian kernel."""
-    x, y = np.mgrid[-size:size+1, -size:size+1]
-    g = np.exp(-(x**2 + y**2) / (2 * sigma**2))
-    return g / g.sum()
-
-
 def LoG_kernel(size, sigma):
     """Returns a Laplacian of Gaussian (LoG) kernel."""
-    x, y = np.mgrid[-size:size+1, -size:size+1]
-    nom = ((y**2)+(x**2)-2*(sigma**2))
-    denom = ((2*np.pi*(sigma**6)))
+    # https://homepages.inf.ed.ac.uk/rbf/HIPR2/log.htm
+    # x, y = np.mgrid[-size:size+1, -size:size+1]
+    # x = np.matrix([[0, -1, 0],
+    #                [-1, 4, -1],
+    #                [0, -1, 0]])
+    # y = np.rot90(x)
+    x, y = np.meshgrid(np.arange(-(size-1)//2, (size-1)//2+1),
+                       np.arange(-(size-1)//2, (size-1)//2+1))
+    # x = np.matrix([[0, 0, -1, -1, -1, 0, 0],
+    #                [0, -1, -3, -3, -3, -1, 0],
+    #                [-1, -3, 0, 7, 0, -3, -1],
+    #                [-1, -3, 7, 24, 7, -3, -1],
+    #                [-1, -3, 0, 7, 0, -3, -1],
+    #                [0, -1, -3, -3, -3, -1, 0],
+    #                [0, 0, -1, -1, -1, 0, 0]])
+    # y = np.rot90(x)
+    frac1 = (-1/(math.pi*sigma**2))
+    frac2 = (1 - ((x**2+y**2)/(2*sigma**2)))
     expo = np.exp(-((x**2)+(y**2))/(2*(sigma**2)))
-    return nom*expo/denom
+
+    return frac1*frac2*expo
 
 
 def convolve(image, kernel):
@@ -34,10 +42,10 @@ def LoG(image, size, sigma):
 
 # Load an image and convert it to grayscale
 img = np.array(Image.open(
-    '/home/pdvorak/school/pvso/PVSO_Zadania_Hasprun_Dvorak/mosaic.jpg').convert('L'))
+    '../chessboard0.jpg').convert('L'))
 
 # Apply Laplacian of Gaussian edge detection with a 5x5 kernel and sigma=1.4
-edges = LoG(img, 5, 1.4)
+edges = LoG(img, 5, 1.3)
 
 # Save the result to a file
 Image.fromarray(edges).save('output.jpg')
