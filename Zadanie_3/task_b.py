@@ -1,6 +1,7 @@
 import numpy as np
 from scipy import ndimage
 from PIL import Image
+import math
 
 
 def gaussian_kernel(size, sigma):
@@ -13,9 +14,10 @@ def gaussian_kernel(size, sigma):
 def LoG_kernel(size, sigma):
     """Returns a Laplacian of Gaussian (LoG) kernel."""
     x, y = np.mgrid[-size:size+1, -size:size+1]
-    g = np.exp(-(x**2 + y**2) / (2 * sigma**2))
-    h = (x**2 + y**2 - 2 * sigma**2) / sigma**4
-    return h * g / g.sum()
+    nom = ((y**2)+(x**2)-2*(sigma**2))
+    denom = ((2*np.pi*(sigma**6)))
+    expo = np.exp(-((x**2)+(y**2))/(2*(sigma**2)))
+    return nom*expo/denom
 
 
 def convolve(image, kernel):
