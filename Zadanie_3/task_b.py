@@ -1,51 +1,33 @@
 import numpy as np
-from scipy import ndimage
 from PIL import Image
-import math
-
-def LoG_kernel(size, sigma):
-    """Returns a Laplacian of Gaussian (LoG) kernel."""
-    # https://homepages.inf.ed.ac.uk/rbf/HIPR2/log.htm
-    # x, y = np.mgrid[-size:size+1, -size:size+1]
-    # x = np.matrix([[0, -1, 0],
-    #                [-1, 4, -1],
-    #                [0, -1, 0]])
-    # y = np.rot90(x)
-    x, y = np.meshgrid(np.arange(-(size-1)//2, (size-1)//2+1),
-                       np.arange(-(size-1)//2, (size-1)//2+1))
-    # x = np.matrix([[0, 0, -1, -1, -1, 0, 0],
-    #                [0, -1, -3, -3, -3, -1, 0],
-    #                [-1, -3, 0, 7, 0, -3, -1],
-    #                [-1, -3, 7, 24, 7, -3, -1],
-    #                [-1, -3, 0, 7, 0, -3, -1],
-    #                [0, -1, -3, -3, -3, -1, 0],
-    #                [0, 0, -1, -1, -1, 0, 0]])
-    # y = np.rot90(x)
-    frac1 = (-1/(math.pi*sigma**2))
-    frac2 = (1 - ((x**2+y**2)/(2*sigma**2)))
-    expo = np.exp(-((x**2)+(y**2))/(2*(sigma**2)))
-
-    return frac1*frac2*expo
 
 
 def convolve(image, kernel):
-    """Convolves an image with a kernel."""
-    return ndimage.convolve(image, kernel)
+    img_shape = image.shape
+    kernel_shape = kernel.shape
 
+    # Compute the output shape
+    output_shape = (img_shape[0] - kernel_shape[0] + 1,
+                    img_shape[1] - kernel_shape[1] + 1)
 
-def LoG(image, size, sigma):
-    """Applies Laplacian of Gaussian edge detection to an image."""
-    kernel = LoG_kernel(size, sigma)
-    convolved = convolve(image, kernel)
-    return convolved
+    # Initialize the output image
+    output_image = np.zeros(output_shape)
+
+    # Perform the convolution
+    for i in range(output_shape[0]):
+        for j in range(output_shape[1]):
+            output_image[i, j] = (
+                image[i:i + kernel_shape[0], j:j + kernel_shape[1]] * kernel).sum()
+
+    return output_image
 
 
 # Load an image and convert it to grayscale
 img = np.array(Image.open(
-    '../chessboard0.jpg').convert('L'))
+    '/home/pdvorak/school/pvso/PVSO_Zadania_Hasprun_Dvorak/mosaic_BKP.jpg').convert('L'))
 
-# Apply Laplacian of Gaussian edge detection with a 5x5 kernel and sigma=1.4
-edges = LoG(img, 5, 1.3)
+kernel = np.array([[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]])
+output_arr = convolve(img, kernel)
 
-# Save the result to a file
-Image.fromarray(edges).save('output.jpg')
+output_img = Image.fromarray(output_arr).convert('L')
+output_img.save('output_image.jpg')
