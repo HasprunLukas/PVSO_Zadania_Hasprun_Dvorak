@@ -1,5 +1,18 @@
 import numpy as np
 from PIL import Image
+import math
+
+
+def LoG_kernel(size, sigma):
+    # x, y = np.mgrid[-size:size+1, -size:size+1]
+    # https://homepages.inf.ed.ac.uk/rbf/HIPR2/log.htm
+    x, y = np.meshgrid(np.arange(-(size-1)//2, (size-1)//2+1),
+                       np.arange(-(size-1)//2, (size-1)//2+1))
+    frac1 = (-1/(math.pi*sigma**4))
+    frac2 = (1 - ((x**2+y**2)/(2*sigma**2)))
+    expo = np.exp(-((x**2)+(y**2))/(2*(sigma**2)))
+
+    return frac1*frac2*expo
 
 
 def convolve(image, kernel):
@@ -22,12 +35,17 @@ def convolve(image, kernel):
     return output_image
 
 
+def LoG(image, size, sigma):
+    kernel = LoG_kernel(size, sigma)
+    convolved = convolve(image, kernel)
+    return convolved
+
+
 # Load an image and convert it to grayscale
 img = np.array(Image.open(
     '/home/pdvorak/school/pvso/PVSO_Zadania_Hasprun_Dvorak/Zadanie_2/chessboard1.jpg').convert('L'))
 
-kernel = np.array([[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]])
-output_arr = convolve(img, kernel)
+# kernel = np.array([[0, -1, 0], [-1, 4, -1], [0, -1, 0]])
+output_arr = LoG(img, 9, 0.5)
 
-output_img = Image.fromarray(output_arr).convert('L')
-output_img.save('output_image.jpg')
+Image.fromarray(output_arr).convert('L').save('output.jpg')
