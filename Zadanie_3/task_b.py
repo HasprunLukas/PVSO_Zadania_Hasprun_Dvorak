@@ -24,7 +24,7 @@ def convolve(image, kernel):
 
 # Load an image and convert it to grayscale
 img = np.array(Image.open(
-    '/home/pdvorak/school/pvso/PVSO_Zadania_Hasprun_Dvorak/mosaic_BKP.jpg').convert('L'))
+    '/home/pdvorak/school/pvso/PVSO_Zadania_Hasprun_Dvorak/Zadanie_2/chessboard1.jpg').convert('L'))
 
 kernel = np.array([[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]])
 output_arr = convolve(img, kernel)
