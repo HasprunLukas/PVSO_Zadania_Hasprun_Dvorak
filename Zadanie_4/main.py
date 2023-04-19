@@ -1,17 +1,17 @@
 import numpy as np
 import open3d as o3d
 from sklearn.cluster import KMeans
+import matplotlib as plt
+import open3d.visualization
 
 
 def main():
-    # show_by_image(
-    #     "/home/pdvorak/school/pvso/PVSO_Zadania_Hasprun_Dvorak/Zadanie_4/cow_and_lady.pcd")
+    # show_by_image("./cow_and_lady.pcd")
     # show_by_image("./output.pcd")
-    removed_outliers_pcd = remove_outliers(
-        '/home/pdvorak/school/pvso/PVSO_Zadania_Hasprun_Dvorak/Zadanie_4/cow_and_lady.pcd')
-    k_means(removed_outliers_pcd)
-
+    removed_outliers_pcd = remove_outliers('./cow_and_lady.pcd')
     # show_by_pcd(removed_outliers_pcd)
+    dbscan_segmentation(removed_outliers_pcd)
+    k_means(removed_outliers_pcd)
 
 
 def show_by_image(image_name):
@@ -43,7 +43,7 @@ def k_means(pcd):
 
     # n_clusters is the number of clusters we want.
     # random_state makes the results reproducible and can be useful for debugging
-    kmeans = KMeans(n_clusters=20, random_state=1).fit(xyz)
+    kmeans = KMeans(n_clusters=20, random_state=1, n_init=5).fit(xyz)
 
     # Get the cluster labels and the centroids
     labels = kmeans.labels_
@@ -57,6 +57,18 @@ def k_means(pcd):
     for i, label in enumerate(labels):
         pcd.colors[i] = colors[label]
     # Visualize the segmented point cloud
+    o3d.visualization.draw_geometries([pcd])
+
+
+def dbscan_segmentation(pcd):
+    # http://www.open3d.org/docs/latest/tutorial/Basic/pointcloud.html
+    labels = np.array(
+        pcd.cluster_dbscan(eps=0.05, min_points=10, print_progress=True))
+    max_label = labels.max()
+    print(f"point cloud has {max_label + 1} clusters")
+    colors = plt.colormaps.get_cmap("tab20")(labels / (max_label if max_label > 0 else 1))
+    colors[labels < 0] = 0
+    pcd.colors = o3d.utility.Vector3dVector(colors[:, :3])
     o3d.visualization.draw_geometries([pcd])
 
 
