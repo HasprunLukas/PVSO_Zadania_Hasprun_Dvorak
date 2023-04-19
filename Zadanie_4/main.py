@@ -2,23 +2,16 @@ import numpy as np
 import open3d as o3d
 from sklearn.cluster import KMeans
 import matplotlib as plt
-import open3d.visualization
 
 
 def main():
-    # show_by_image("./cow_and_lady.pcd")
-    # show_by_image("./output.pcd")
     removed_outliers_pcd = remove_outliers('./cow_and_lady.pcd')
-    # show_by_pcd(removed_outliers_pcd)
     dbscan_segmentation(removed_outliers_pcd)
     k_means(removed_outliers_pcd)
 
 
 def show_by_image(image_name):
-    print("Loading " + image_name)
     pcd = o3d.io.read_point_cloud(image_name)
-    print(pcd)
-    print(np.asarray(pcd.points))
     show_by_pcd(pcd)
 
 
@@ -63,9 +56,8 @@ def k_means(pcd):
 def dbscan_segmentation(pcd):
     # http://www.open3d.org/docs/latest/tutorial/Basic/pointcloud.html
     labels = np.array(
-        pcd.cluster_dbscan(eps=0.05, min_points=10, print_progress=True))
+        pcd.cluster_dbscan(eps=0.05, min_points=10, print_progress=False))
     max_label = labels.max()
-    print(f"point cloud has {max_label + 1} clusters")
     colors = plt.colormaps.get_cmap("tab20")(labels / (max_label if max_label > 0 else 1))
     colors[labels < 0] = 0
     pcd.colors = o3d.utility.Vector3dVector(colors[:, :3])
