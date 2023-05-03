@@ -5,9 +5,11 @@ import matplotlib as plt
 
 
 def main():
+    show_by_image('./cow_and_lady.pcd')
     removed_outliers_pcd = remove_outliers('./cow_and_lady.pcd')
+    show_by_pcd(removed_outliers_pcd)
     dbscan_segmentation(removed_outliers_pcd)
-    k_means(removed_outliers_pcd)
+    # k_means(removed_outliers_pcd)
 
 
 def show_by_image(image_name):
@@ -22,8 +24,8 @@ def show_by_pcd(pcd):
 def remove_outliers(image):
     # http://www.open3d.org/docs/latest/tutorial/Advanced/pointcloud_outlier_removal.html
     pcd = o3d.io.read_point_cloud(image)
-    cl, ind = pcd.remove_statistical_outlier(nb_neighbors=20,
-                                             std_ratio=2.0)
+    cl, ind = pcd.remove_statistical_outlier(nb_neighbors=100,
+                                             std_ratio=1)
     inlier_cloud = pcd.select_by_index(ind)
 
     return inlier_cloud
@@ -36,7 +38,7 @@ def k_means(pcd):
 
     # n_clusters is the number of clusters we want.
     # random_state makes the results reproducible and can be useful for debugging
-    kmeans = KMeans(n_clusters=20, random_state=1, n_init=5).fit(xyz)
+    kmeans = KMeans(n_clusters=4, random_state=1, n_init=5).fit(xyz)
 
     # Get the cluster labels and the centroids
     labels = kmeans.labels_
