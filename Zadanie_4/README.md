@@ -43,6 +43,8 @@ For the segmentation we selected the **K-Means** and the **DBSCAN** algorithm.
 
 ### **K-Mean Clustering**
 
+K-means searches for a predetermined number of clusters within an unlabelled dataset by using an iterative method to produce a final clustering based on the number of clusters defined by the user (represented by the variable K).
+
 It represents all the data points with K representatives, which gave the algorithm its name. So K is a user-defined number that we put into the system.
 
 For K-Means we used the **sklearn** library. The library have a predefinied function for K-Means clustering. This function takes three parameters:
@@ -54,8 +56,10 @@ For K-Means we used the **sklearn** library. The library have a predefinied func
 
 ### **DBSCAN Clustering**
 
+DBSCAN is a density-based clustering algorithm that works on the assumption that clusters are dense regions in space separated by regions of lower density. It groups 'densely grouped' data points into a single cluster.
+
 Open3d have a predefinied function for DBSCAN. This fnction is **cluster_dbscan** and it takes two parameters as input:
  - **eps** - Defines the distance to neighbour in a cluster.
  - **min_points** - Defines the number of minimum points to define a cluster.
 
-
+![DBSCAN Clustering](/Zadanie_4/dbscan.png)

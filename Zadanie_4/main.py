@@ -3,11 +3,13 @@ import open3d as o3d
 from sklearn.cluster import KMeans
 import matplotlib as plt
 
+import matplotlib.cm
+
 
 def main():
     show_by_image("./cow_and_lady.pcd")
     removed_outliers_pcd = remove_outliers("./cow_and_lady.pcd")
-    show_by_pcd(removed_outliers_pcd)
+    # show_by_pcd(removed_outliers_pcd)
     dbscan_segmentation(removed_outliers_pcd)
     # k_means(removed_outliers_pcd)
 
@@ -24,7 +26,7 @@ def show_by_pcd(pcd):
 def remove_outliers(image):
     # http://www.open3d.org/docs/latest/tutorial/Advanced/pointcloud_outlier_removal.html
     pcd = o3d.io.read_point_cloud(image)
-    cl, ind = pcd.remove_statistical_outlier(nb_neighbors=100, std_ratio=1)
+    cl, ind = pcd.remove_statistical_outlier(nb_neighbors=150, std_ratio=0.5)
     inlier_cloud = pcd.select_by_index(ind)
 
     return inlier_cloud
@@ -37,7 +39,7 @@ def k_means(pcd):
 
     # n_clusters is the number of clusters we want.
     # random_state makes the results reproducible and can be useful for debugging
-    kmeans = KMeans(n_clusters=4, random_state=1, n_init=5).fit(xyz)
+    kmeans = KMeans(n_clusters=4, random_state=1, n_init=20).fit(xyz)
 
     # Get the cluster labels and the centroids
     labels = kmeans.labels_
@@ -56,9 +58,9 @@ def k_means(pcd):
 
 def dbscan_segmentation(pcd):
     # http://www.open3d.org/docs/latest/tutorial/Basic/pointcloud.html
-    labels = np.array(pcd.cluster_dbscan(eps=0.05, min_points=10, print_progress=False))
+    labels = np.array(pcd.cluster_dbscan(eps=0.1, min_points=15, print_progress=False))
     max_label = labels.max()
-    colors = plt.colormaps.get_cmap("tab20")(
+    colors = matplotlib.cm.get_cmap("tab20")(
         labels / (max_label if max_label > 0 else 1)
     )
     colors[labels < 0] = 0
